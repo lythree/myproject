@@ -1,6 +1,7 @@
 <template>
     <el-aside width="200px">
         <el-menu
+          :router="true"
           :unique-opened="true"
           class="el-menu-vertical-demo"
         >
@@ -9,7 +10,7 @@
               <i class="el-icon-location"></i>
               <span>用户管理</span>
             </template>
-            <el-menu-item index="1-1">
+            <el-menu-item index="/user">
                <i class="el-icon-s-grid"></i>
               <span>用户列表</span>
            </el-menu-item>

@@ -7,7 +7,9 @@
     <el-container>
         <!-- 侧边栏 -->
       <Sidebar></Sidebar>
-      <el-main>Main</el-main>
+      <el-main>
+        <router-view></router-view>
+      </el-main>
     </el-container>
   </el-container>
 </template>
@@ -19,6 +21,13 @@ export default {
   components: {
     Tophead: Tophead,
     Sidebar: Sidebar
+  },
+  mounted () {
+    let token = window.localStorage.getItem('token')
+    if (!token) {
+      this.$router.push('/login')
+      this.$message.error('你还没登陆，请先登陆')
+    }
   }
 }
 </script>
@@ -64,8 +73,6 @@ export default {
 .el-main {
   background-color: #e9eef3;
   color: #333;
-  text-align: center;
-  line-height: 160px;
   height: 100%;
 }
 </style>
