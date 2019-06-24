@@ -25,15 +25,27 @@
       <el-table-column prop="email" label="邮箱" width="180"></el-table-column>
       <el-table-column label="用户状态">
         <template slot-scope="scope">
-          <el-switch v-model="scope.row.mg_state" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
+          <el-switch v-model="scope.row.mg_state" @change='selchange(scope.row.id,scope.row.mg_state)' active-color="#13ce66" inactive-color="#ff4949"></el-switch>
         </template>
       </el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <el-button type="primary" icon="el-icon-edit" plain size="mini"></el-button>
-          <el-button type="success" icon="el-icon-check" plain size="mini"></el-button>
+          <el-button
+            type="primary"
+            icon="el-icon-edit"
+            plain
+            size="mini"
+            @click.prevent="getedit(scope.row.id)"
+          ></el-button>
+          <el-button type="success" icon="el-icon-check" plain size="mini" @click.prevent="getroles(scope.row.id)"></el-button>
           <!-- {{scope.row}} -->
-          <el-button type="danger" icon="el-icon-delete" plain size="mini" @click.prevent='del(scope.row.id)'></el-button>
+          <el-button
+            type="danger"
+            icon="el-icon-delete"
+            plain
+            size="mini"
+            @click.prevent="del(scope.row.id)"
+          ></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -53,7 +65,7 @@
     <el-dialog title="添加用户" :visible.sync="dialogFormVisible">
       <el-form v-model="from">
         <el-form-item label="用户名" :label-width="formLabelWidth">
-          <el-input  v-model="from.username" autocomplete="off"></el-input>
+          <el-input v-model="from.username" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="密码" :label-width="formLabelWidth">
           <el-input v-model="from.password" type="password" autocomplete="off"></el-input>
@@ -64,11 +76,51 @@
         <el-form-item label="mobile" :label-width="formLabelWidth">
           <el-input v-model="from.mobile" autocomplete="off"></el-input>
         </el-form-item>
-
-      </el-form >
+      </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button @click='addDialog' type="primary" >确 定</el-button>
+        <el-button @click="addDialog" type="primary">确 定</el-button>
+      </div>
+    </el-dialog>
+    <!-- 用户编辑对话框 -->
+    <el-dialog title="编辑用户" :visible.sync="editdialog">
+      <el-form v-model="editfrom">
+        <el-form-item label="用户名" :label-width="formLabelWidth">
+          <el-input v-model="editfrom.username" autocomplete="off" :disabled="true"></el-input>
+        </el-form-item>
+        <el-form-item label="email" :label-width="formLabelWidth">
+          <el-input v-model="editfrom.email" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="mobile" :label-width="formLabelWidth">
+          <el-input v-model="editfrom.mobile" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="editdialog = false">取 消</el-button>
+        <el-button @click="edit" type="primary">确 定</el-button>
+      </div>
+    </el-dialog>
+    <!-- 用户角色对话框 -->
+    <el-dialog title="用户角色" :visible.sync="rolesdialog">
+      <el-form v-model="rolesfrom">
+        <el-form-item label="用户名" :label-width="formLabelWidth">
+          <el-input v-model="rolesfrom.username" autocomplete="off" ></el-input>
+        </el-form-item>
+        <el-form-item label="用户角色" :label-width="formLabelWidth">
+          <el-select v-model="rolesfrom.rid" placeholder="请选择">
+            <el-option label='请选择' :value="-1"></el-option>
+            <el-option
+              v-for="item in options"
+              :key="item.id"
+              :label="item.roleName"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="rolesdialog = false">取 消</el-button>
+        <el-button @click="roles" type="primary">确 定</el-button>
       </div>
     </el-dialog>
   </el-card>
@@ -99,7 +151,27 @@ export default {
         password: '',
         email: '',
         mobile: ''
-      }
+      },
+      // 用户编辑用户对话框
+      editfrom: {
+        id: '',
+        username: '',
+        email: '',
+        mobile: ''
+      },
+      // 编辑对话框的显示与隐藏
+      editdialog: false,
+      // 分配角色对话框的显示与隐藏
+      rolesdialog: false,
+      // 分配角色对象
+      rolesfrom: {
+        id: '',
+        username: '',
+        rid: ''
+
+      },
+      // 角色数据
+      options: []
     }
   },
   methods: {
@@ -154,7 +226,7 @@ export default {
         }
       }).then(res => {
         //  console.log(res)
-        let {meta} = res.data
+        let { meta } = res.data
         if (meta.status === 201) {
           this.getdata()
           this.$message({
@@ -181,6 +253,133 @@ export default {
         let { meta } = res.data
         if (meta.status === 200) {
           this.getdata()
+          this.$message({
+            message: meta.msg,
+            type: 'success'
+          })
+        } else {
+          this.$message.error(meta.msg)
+        }
+      })
+    },
+    // 获取要编辑数据
+    getedit (id) {
+      this.editdialog = true
+      this.$http({
+        method: 'get',
+        url: `http://localhost:8888/api/private/v1/users/${id}`,
+        headers: {
+          authorization: window.localStorage.getItem('token')
+        }
+      }).then(res => {
+        // console.log(res)
+
+        let { data, meta } = res.data
+        if (meta.status === 200) {
+          this.editfrom.username = data.username
+          this.editfrom.email = data.email
+          this.editfrom.mobile = data.mobile
+          this.editfrom.id = data.id
+        } else {
+          this.$message.error(meta.msg)
+        }
+      })
+    },
+    // 提交修改后的数据
+    edit (id) {
+      this.$http({
+        method: 'put',
+        url: `http://localhost:8888/api/private/v1/users/${this.editfrom.id}`,
+        data: {
+          email: this.editfrom.email,
+          mobile: this.editfrom.mobile
+        },
+        headers: {
+          authorization: window.localStorage.getItem('token')
+        }
+      }).then(res => {
+        console.log(res)
+        let { meta } = res.data
+        if (meta.status === 200) {
+          this.$message({
+            message: meta.msg,
+            type: 'success'
+          })
+          this.editdialog = false
+          this.getdata()
+        } else {
+          this.$message.error(meta.msg)
+        }
+      })
+    },
+    // 分配角色
+    getroles (id) {
+      this.rolesdialog = true
+      this.$http({
+        method: 'get',
+        url: `http://localhost:8888/api/private/v1/roles`,
+        headers: {
+          authorization: window.localStorage.getItem('token')
+        }
+      }).then(res => {
+        //  console.log(res);
+        let {data, meta} = res.data
+        if (meta.status === 200) {
+          this.options = data
+          this.$http({
+            method: 'get',
+            url: `http://localhost:8888/api/private/v1/users/${id}`,
+            headers: {
+              authorization: window.localStorage.getItem('token')
+            }
+          }).then(res => {
+            // console.log(res)
+            let {meta, data} = res.data
+            if (meta.status === 200) {
+              this.rolesfrom.username = data.username
+              this.rolesfrom.rid = data.rid
+              this.rolesfrom.id = data.id
+            }
+          })
+        } else {
+          this.$message.error(meta.msg)
+        }
+      })
+    },
+    // 修改角色
+    roles () {
+      this.$http({
+        method: 'put',
+        url: `http://localhost:8888/api/private/v1/users/${this.rolesfrom.id}/role`,
+        data: {
+          rid: this.rolesfrom.rid
+        },
+        headers: {
+          authorization: window.localStorage.getItem('token')
+        }
+      }).then(res => {
+        console.log(res)
+
+        let {meta} = res.data
+        if (meta.status === 200) {
+          this.rolesdialog = false
+          this.getdata()
+        }
+      })
+    },
+    // 改变用户状态
+    selchange (uld, type) {
+      this.$http({
+        method: 'put',
+        url: `http://localhost:8888/api/private/v1/users/${uld}/state/${type}`,
+        headers: {
+          authorization: window.localStorage.getItem('token')
+        }
+      }).then(res => {
+        console.log(res)
+
+        let {meta} = res.data
+        if (meta.status === 200) {
           this.$message({
             message: meta.msg,
             type: 'success'
