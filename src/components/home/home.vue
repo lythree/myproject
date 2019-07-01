@@ -2,7 +2,7 @@
   <el-container>
     <!-- 头部 -->
     <el-header>
-    <Tophead></Tophead>
+      <Tophead></Tophead>
     </el-header>
     <el-container>
         <!-- 侧边栏 -->
@@ -21,14 +21,14 @@ export default {
   components: {
     Tophead: Tophead,
     Sidebar: Sidebar
-  },
-  mounted () {
-    let token = window.localStorage.getItem('token')
-    if (!token) {
-      this.$router.push('/login')
-      this.$message.error('你还没登陆，请先登陆')
-    }
   }
+  // mounted () {
+  //   let token = window.localStorage.getItem('token')
+  //   if (!token) {
+  //     this.$router.push('/login')
+  //     this.$message.error('你还没登陆，请先登陆')
+  //   }
+  // }
 }
 </script>
 
@@ -42,18 +42,16 @@ export default {
   text-align: center;
   line-height: 60px;
 }
-.el-col {
+
+.myimg img {
   height: 60px;
-}
-.el-row img {
-  height: 100%;
 
 }
-.el-col h2 {
+.myh h2 {
   margin: 0;
   color: #fff;
 }
-.el-col a {
+.myA a {
   float: right;
   text-decoration: none;
   color: red;

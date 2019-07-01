@@ -1,12 +1,12 @@
 <template>
   <el-row>
-    <el-col :span="4">
+    <el-col class="myimg" :span="4">
       <img src="../../assets/logo.png" alt>
     </el-col>
-    <el-col :span="16">
+    <el-col class="myh" :span="16">
       <h2>电商后台管理系统</h2>
     </el-col>
-    <el-col :span="4">
+    <el-col class="myA" :span="4">
       <a href="#" @click.prevent="logout">退出</a>
     </el-col>
   </el-row>

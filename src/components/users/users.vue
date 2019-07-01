@@ -1,11 +1,12 @@
 <template>
   <el-card>
     <!-- 面包屑导航 -->
-    <el-breadcrumb separator-class="el-icon-arrow-right">
+     <brand one='用户管理' two=‘用户列表></brand>
+    <!-- <el-breadcrumb separator-class="el-icon-arrow-right">
       <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
       <el-breadcrumb-item>用户管理</el-breadcrumb-item>
       <el-breadcrumb-item>用户列表</el-breadcrumb-item>
-    </el-breadcrumb>
+    </el-breadcrumb> -->
     <!-- 搜索框 -->
     <el-row class="myrow">
       <el-col :span="6">
@@ -126,7 +127,8 @@
   </el-card>
 </template>
 
-<script>
+<script >
+import brand from '../layout/brandnav'
 export default {
   data () {
     return {
@@ -178,10 +180,10 @@ export default {
     getdata () {
       this.$http({
         method: 'get',
-        url: `http://localhost:8888/api/private/v1/users?query=${
+        url: `users?query=${
           this.query
-        }&pagenum=${this.pagenum}&pagesize=${this.pagesize}`,
-        headers: { Authorization: window.localStorage.getItem('token') }
+        }&pagenum=${this.pagenum}&pagesize=${this.pagesize}`
+
       }).then(res => {
         // console.log(res)
         let { meta, data } = res.data
@@ -219,11 +221,9 @@ export default {
     addDialog () {
       this.$http({
         method: 'post',
-        url: 'http://localhost:8888/api/private/v1/users',
-        data: this.from,
-        headers: {
-          Authorization: window.localStorage.getItem('token')
-        }
+        url: 'users',
+        data: this.from
+
       }).then(res => {
         //  console.log(res)
         let { meta } = res.data
@@ -244,10 +244,8 @@ export default {
       //  console.log(id);
       this.$http({
         method: 'delete',
-        url: `http://localhost:8888/api/private/v1/users/${id}`,
-        headers: {
-          authorization: window.localStorage.getItem('token')
-        }
+        url: `users/${id}`
+
       }).then(res => {
         console.log(res)
         let { meta } = res.data
@@ -267,10 +265,10 @@ export default {
       this.editdialog = true
       this.$http({
         method: 'get',
-        url: `http://localhost:8888/api/private/v1/users/${id}`,
-        headers: {
-          authorization: window.localStorage.getItem('token')
-        }
+        url: `users/${id}`
+        // headers: {
+        //   authorization: window.localStorage.getItem('token')
+        // }
       }).then(res => {
         // console.log(res)
 
@@ -289,14 +287,14 @@ export default {
     edit (id) {
       this.$http({
         method: 'put',
-        url: `http://localhost:8888/api/private/v1/users/${this.editfrom.id}`,
+        url: `users/${this.editfrom.id}`,
         data: {
           email: this.editfrom.email,
           mobile: this.editfrom.mobile
-        },
-        headers: {
-          authorization: window.localStorage.getItem('token')
         }
+        // headers: {
+        //   authorization: window.localStorage.getItem('token')
+        // }
       }).then(res => {
         console.log(res)
         let { meta } = res.data
@@ -317,10 +315,10 @@ export default {
       this.rolesdialog = true
       this.$http({
         method: 'get',
-        url: `http://localhost:8888/api/private/v1/roles`,
-        headers: {
-          authorization: window.localStorage.getItem('token')
-        }
+        url: `roles`
+        // headers: {
+        //   authorization: window.localStorage.getItem('token')
+        // }
       }).then(res => {
         //  console.log(res);
         let {data, meta} = res.data
@@ -328,10 +326,10 @@ export default {
           this.options = data
           this.$http({
             method: 'get',
-            url: `http://localhost:8888/api/private/v1/users/${id}`,
-            headers: {
-              authorization: window.localStorage.getItem('token')
-            }
+            url: `users/${id}`
+            // headers: {
+            //   authorization: window.localStorage.getItem('token')
+            // }
           }).then(res => {
             // console.log(res)
             let {meta, data} = res.data
@@ -350,13 +348,13 @@ export default {
     roles () {
       this.$http({
         method: 'put',
-        url: `http://localhost:8888/api/private/v1/users/${this.rolesfrom.id}/role`,
+        url: `users/${this.rolesfrom.id}/role`,
         data: {
           rid: this.rolesfrom.rid
-        },
-        headers: {
-          authorization: window.localStorage.getItem('token')
         }
+        // headers: {
+        //   authorization: window.localStorage.getItem('token')
+        // }
       }).then(res => {
         console.log(res)
 
@@ -371,10 +369,10 @@ export default {
     selchange (uld, type) {
       this.$http({
         method: 'put',
-        url: `http://localhost:8888/api/private/v1/users/${uld}/state/${type}`,
-        headers: {
-          authorization: window.localStorage.getItem('token')
-        }
+        url: `users/${uld}/state/${type}`
+        // headers: {
+        //   authorization: window.localStorage.getItem('token')
+        // }
       }).then(res => {
         console.log(res)
 
@@ -392,11 +390,14 @@ export default {
   },
   mounted () {
     this.getdata()
+  },
+  components: {
+    brand: brand
   }
 }
 </script>
 
-<style scoped>
+<style >
 .myrow {
   margin: 10px;
 }
